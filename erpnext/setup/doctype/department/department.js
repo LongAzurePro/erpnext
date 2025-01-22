@@ -51,9 +51,9 @@ frappe.ui.form.on("Department", {
 			}
 		});
 
-		
+		console.log(frm.doc);
 
-		const iframe = `<iframe src="/app/m365-groups/${frm.doc.name} - ${frm.doc.company}" style="width: 100%; height: 600px; border: none;"></iframe>`;
+		const iframe = `<iframe src="/app/m365-groups/${frm.doc.m365_group.m365_group_name}" style="width: 100%; height: 600px; border: none;"></iframe>`;
         frm.fields_dict.m365_group_iframe.$wrapper.html(iframe);
 		
 		frm.trigger("get_seperated_members");
@@ -68,10 +68,11 @@ frappe.ui.form.on("Department", {
 				]
 			},
 			callback: function(r) {
+				table = "";
 				if (r.message && r.message.length > 0) {
 					// Tạo bảng HTML với class
 					var rows = r.message;
-					var table = "<table class='table table-bordered' style='width:100%; border-collapse: collapse;'>";
+					table += "<table class='table table-bordered' style='width:100%; border-collapse: collapse;'>";
 					table += "<thead><tr style='background-color: #f2f2f2;'>";
 
 					// Thêm tiêu đề cột với class
@@ -96,28 +97,28 @@ frappe.ui.form.on("Department", {
 					});
 
 					table += "</tbody></table>";
-					table += "<tfoot><tr><td colspan='4' style='text-align: center;'><button class='btn btn-primary' id='load_data_btn'>Add Employee</button></td></tr></tfoot>";
-					// Cập nhật nội dung của trường HTML
-					frm.set_df_property("custom_table", "options", table);
-					frm.refresh_field("custom_table");
+				}
+				table += "<tfoot><tr><td colspan='4' style='text-align: center;'><button class='btn btn-primary' id='load_data_btn'>Add Employee</button></td></tr></tfoot>";
+				// Cập nhật nội dung của trường HTML
+				frm.set_df_property("custom_table", "options", table);
+				frm.refresh_field("custom_table");
 
-					$("#load_data_btn").click(function() {
+				$("#load_data_btn").click(function() {
+					if(frm.is_dirty()){
+						frappe.msgprint(__("Please save the form first."))
+					}else{
 						frappe.new_doc("Employee", {
 							department: frm.doc.name,
 							company: frm.doc.company
 						}).then(doc => {
 							frappe.set_route("Form", "Employee", doc.name);
 						})
-							
-					})
+					}	
+				})
 
-					$(".edit-btn").click(function() {
-						frappe.set_route("Form", "Employee", $(this).data("id"));
-					})
-				} else {
-					frm.set_df_property("custom_table", "options", "<p>No employees found.</p>");
-					frm.refresh_field("custom_table");
-				}
+				$(".edit-btn").click(function() {
+					frappe.set_route("Form", "Employee", $(this).data("id"));
+				})
 			}
 		});
 
