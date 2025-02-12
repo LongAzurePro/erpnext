@@ -29,6 +29,22 @@ frappe.ui.form.on("Employee", {
 				},
 			};
 		});
+
+		const params = new URLSearchParams(window.location.search);
+
+        // Điền giá trị vào trường
+        if (params.has('full_name')) {
+            frm.set_value('employee_name', params.get('full_name'));
+        }
+        if (params.has('department')) {
+			frm.set_df_property('department', 'read_only', 1);
+            frm.set_value('department', params.get('department'));
+			
+        }
+        if (params.has('user_id')) {
+            frm.set_value('user_id', params.get('user_id'));
+			frm.set_df_property('user_id', 'read_only', 1);
+        }
 	},
 	prefered_contact_email: function (frm) {
 		frm.events.update_contact(frm);
